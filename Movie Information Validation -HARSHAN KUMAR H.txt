@@ -1,0 +1,47 @@
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.io.IOException;
+
+public class MovieDetailsExtractor {
+
+    public static void main(String[] args) throws IOException {
+        String movieTitle = "Pushpa: The Rise";
+
+        // Extract details from IMDB
+        String imdbUrl = "https://www.imdb.com/find?q=" + movieTitle.replace(" ", "+") + "&s=tt";
+        Document imdbDoc = Jsoup.connect(imdbUrl).get();
+        String movieUrl = "https://www.imdb.com" + imdbDoc.select("td.result_text > a").first().attr("href");
+        Document movieDoc = Jsoup.connect(movieUrl).get();
+        String country = movieDoc.select("div#titleDetails > a[hreflang]").text();
+        String releaseDate = movieDoc.select("div#titleDetails > a[title='See more release dates']").text();
+
+        System.out.println("Country (IMDB): " + country);
+        System.out.println("Release date (IMDB): " + releaseDate);
+
+        // Extract details from Wikipedia
+        String wikiUrl = "https://en.wikipedia.org/w/index.php?search=" + movieTitle.replace(" ", "+") + "&title=Special%3ASearch&fulltext=1&ns0=1";
+        Document wikiDoc = Jsoup.connect(wikiUrl).get();
+        movieUrl = "https://en.wikipedia.org" + wikiDoc.select("div.searchresult > a").first().attr("href");
+        movieDoc = Jsoup.connect(movieUrl).get();
+        country = movieDoc.select("table.infobox th:contains(Country) + td").first().text();
+        releaseDate = movieDoc.select("table.infobox th:contains(Release date) + td").first().text();
+
+        System.out.println("Country (Wikipedia): " + country);
+        System.out.println("Release date (Wikipedia): " + releaseDate);
+    }
+}
+
+
+
+
+In this example, we first define the movie title as a string variable, and then we construct the URLs for the movie search on IMDB and Wikipedia by replacing the spaces in the movie title with the "+" character.
+
+We use Jsoup's connect() method to connect to the URLs, and the get() method to retrieve the HTML content of the pages as a Document object. We then use Jsoup's select() method to find and extract the relevant HTML elements that contain the country and release date information.
+
+For IMDB, we find the URL of the first search result and navigate to the movie page. We then extract the country and release date information from the "Details" section of the page.
+
+For Wikipedia, we find the URL of the first search result and navigate to the movie page. We then extract the country and release date information from the "Infobox" section of the page.
+
+Finally, we print out the extracted information for both sources.
